@@ -1,4 +1,4 @@
-module github.com/sq325/kitComplent
+module github.com/sq325/kitComplement
 
 go 1.21.3
 
