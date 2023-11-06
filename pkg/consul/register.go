@@ -7,6 +7,7 @@ import (
 	consulsd "github.com/go-kit/kit/sd/consul"
 	"github.com/go-kit/log"
 	"github.com/hashicorp/consul/api"
+	"github.com/sq325/kitComplement/pkg/tool"
 )
 
 type Registrar struct {
@@ -44,12 +45,12 @@ func NewRegistrar(consulIP string, consulPort int) *Registrar {
 
 type Service struct {
 	Name  string
-	IP    string
-	Port  int
+	IP    string // svc ip, default hostAdmIp
+	Port  int    // svc port
 	Check struct {
 		Path     string // default /health
-		Interval string
-		Timeout  string
+		Interval string // "60s"
+		Timeout  string // "10s"
 	}
 }
 
@@ -57,6 +58,10 @@ func (rg *Registrar) Register(svc Service) {
 	if svc.Check.Path == "" {
 		svc.Check.Path = "/health"
 	}
+	if svc.IP == "" {
+		svc.IP, _ = tool.HostAdmIp(nil)
+	}
+
 	checkUrl := "http://" + svc.IP + ":" + strconv.Itoa(svc.Port) + svc.Check.Path
 
 	check := api.AgentServiceCheck{
