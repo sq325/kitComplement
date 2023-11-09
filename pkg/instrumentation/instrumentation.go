@@ -88,6 +88,7 @@ func GinHandlerFunc(method,
 			func(ctx context.Context, _ *http.Request) context.Context {
 				ctx = context.WithValue(ctx, "method", method)
 				ctx = context.WithValue(ctx, "uri", uri)
+				ctx = context.WithValue(ctx, "ClientIp", c.ClientIP())
 				return ctx
 			})
 
