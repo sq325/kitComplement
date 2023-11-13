@@ -8,7 +8,7 @@ import (
 )
 
 type Client struct {
-	client *httpTransport.Client
+	*httpTransport.Client
 }
 
 func NewClient(rawUrl string, enc httpTransport.EncodeRequestFunc, dec httpTransport.DecodeResponseFunc) (*Client, error) {
@@ -17,11 +17,11 @@ func NewClient(rawUrl string, enc httpTransport.EncodeRequestFunc, dec httpTrans
 		return nil, err
 	}
 	client := httpTransport.NewClient("POST", url, enc, dec)
-	return &Client{client: client}, nil
+	return &Client{client}, nil
 }
 
 func (c *Client) Do(request any) (response any, err error) {
-	ep := c.client.Endpoint()
+	ep := c.Endpoint()
 	response, err = ep(context.Background(), request)
 	if err != nil {
 		return

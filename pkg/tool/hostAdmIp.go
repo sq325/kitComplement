@@ -8,6 +8,7 @@ import (
 	"sort"
 )
 
+// 获取管理地址
 func HostAdmIp(intfList []string) (string, error) {
 	if intfList == nil {
 		intfList = []string{"bond0", "eth0", "eth1"}
@@ -15,8 +16,6 @@ func HostAdmIp(intfList []string) (string, error) {
 	return hostAdmIp(intfList)
 }
 
-// 管理地址所在interface规则，en0
-// 选取最小的ip
 func hostAdmIp(intfList []string) (string, error) {
 	var (
 		intf *net.Interface

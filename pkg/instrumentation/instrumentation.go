@@ -15,11 +15,6 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-const (
-	_version      = "v0.0.1"
-	_vsersionInfo = "init"
-)
-
 type Metrics struct {
 	ReqC    metrics.Counter
 	ReqErrC metrics.Counter

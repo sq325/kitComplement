@@ -10,12 +10,17 @@ import (
 	"github.com/sq325/kitComplement/pkg/tool"
 )
 
-type Registrar struct {
+type Registrar interface {
+	Register(svc Service)
+	Deregister(svc Service)
+}
+
+type register struct {
 	client consulsd.Client
 	logger log.Logger
 }
 
-func NewRegistrar(consulIP string, consulPort int) *Registrar {
+func NewRegistrar(consulIP string, consulPort int) Registrar {
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(os.Stderr)
@@ -37,7 +42,7 @@ func NewRegistrar(consulIP string, consulPort int) *Registrar {
 		client = consulsd.NewClient(consulClient)
 	}
 
-	return &Registrar{
+	return &register{
 		client: client,
 		logger: logger,
 	}
@@ -54,7 +59,7 @@ type Service struct {
 	}
 }
 
-func (rg *Registrar) Register(svc Service) {
+func (rg *register) Register(svc Service) {
 	if svc.Check.Path == "" {
 		svc.Check.Path = "/health"
 	}
@@ -81,7 +86,7 @@ func (rg *Registrar) Register(svc Service) {
 	sdRegistrar.Register()
 }
 
-func (rg *Registrar) Deregister(svc Service) {
+func (rg *register) Deregister(svc Service) {
 	asr := api.AgentServiceRegistration{
 		ID: svc.Name,
 	}
