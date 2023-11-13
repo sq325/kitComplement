@@ -28,3 +28,4 @@ func (c *Client) Do(request any) (response any, err error) {
 	}
 	return
 }
+
