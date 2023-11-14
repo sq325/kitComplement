@@ -11,39 +11,19 @@ import (
 )
 
 type Registrar interface {
-	Register(svc Service)
-	Deregister(svc Service)
+	Register(svc *Service)
+	Deregister(svc *Service)
 }
 
-type register struct {
+type registrar struct {
 	client consulsd.Client
 	logger log.Logger
 }
 
-func NewRegistrar(consulIP string, consulPort int) Registrar {
-	var logger log.Logger
-	{
-		logger = log.NewLogfmtLogger(os.Stderr)
-		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
-		logger = log.With(logger, "caller", log.DefaultCaller)
-	}
+func NewRegistrar(consulClient consulsd.Client, logger log.Logger) Registrar {
 
-	// Service discovery domain. In this example we use Consul.
-	var client consulsd.Client
-	{
-		consulConfig := api.DefaultConfig()
-		port := strconv.Itoa(consulPort)
-		consulConfig.Address = consulIP + ":" + port
-		consulClient, err := api.NewClient(consulConfig)
-		if err != nil {
-			logger.Log("err", err)
-			os.Exit(1)
-		}
-		client = consulsd.NewClient(consulClient)
-	}
-
-	return &register{
-		client: client,
+	return &registrar{
+		client: consulClient,
 		logger: logger,
 	}
 }
@@ -59,7 +39,7 @@ type Service struct {
 	}
 }
 
-func (rg *register) Register(svc Service) {
+func (rg *registrar) Register(svc *Service) {
 	if svc.Check.Path == "" {
 		svc.Check.Path = "/health"
 	}
@@ -86,10 +66,29 @@ func (rg *register) Register(svc Service) {
 	sdRegistrar.Register()
 }
 
-func (rg *register) Deregister(svc Service) {
+func (rg *registrar) Deregister(svc *Service) {
 	asr := api.AgentServiceRegistration{
 		ID: svc.Name,
 	}
 	sdRegistrar := consulsd.NewRegistrar(rg.client, &asr, rg.logger)
 	sdRegistrar.Deregister()
+}
+
+func NewConsulClient(consulIP string, consulPort int) consulsd.Client {
+
+	consulConfig := api.DefaultConfig()
+	port := strconv.Itoa(consulPort)
+	consulConfig.Address = "http://" + consulIP + ":" + port
+	consulClient, _ := api.NewClient(consulConfig)
+
+	return consulsd.NewClient(consulClient)
+}
+
+func NewLogger() (logger log.Logger) {
+
+	logger = log.NewLogfmtLogger(os.Stderr)
+	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+	logger = log.With(logger, "caller", log.DefaultCaller)
+
+	return
 }
