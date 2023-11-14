@@ -11,7 +11,7 @@ import (
 )
 
 // factor: url -> endpoint
-func FactorFor(url string, enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc) sd.Factory {
+func FactoryFor(url string, enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		if !strings.HasPrefix(instance, "http") {
 			instance = "http://" + instance
@@ -24,4 +24,3 @@ func FactorFor(url string, enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResp
 		return proxyClient.Endpoint(), nil, nil
 	}
 }
-
