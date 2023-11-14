@@ -33,6 +33,18 @@ func hostAdmIp(intfList []string) (string, error) {
 		return "", err
 	}
 
+	// no ip found
+	addrList := AddrList(intf)
+	if len(addrList) == 0 {
+		return "", errors.New("no ip found")
+	}
+
+	addrList = sortAddrList(addrList)
+	return addrList[0].String(), nil
+}
+
+func AddrList(intf *net.Interface) []netip.Addr {
+
 	addrs, _ := intf.Addrs()
 	addrList := make([]netip.Addr, 0)
 	// transfer net.Addr to netip.Addr
@@ -47,12 +59,7 @@ func hostAdmIp(intfList []string) (string, error) {
 			addrList = append(addrList, addr)
 		}
 	}
-	// no ip found
-	if len(addrList) == 0 {
-		return "", errors.New("no ip found")
-	}
-	addrList = sortAddrList(addrList)
-	return addrList[0].String(), nil
+	return addrList
 }
 
 func sortAddrList(addrList []netip.Addr) []netip.Addr {
