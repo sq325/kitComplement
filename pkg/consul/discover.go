@@ -3,11 +3,20 @@ package consul
 import (
 	"io"
 	"strings"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
+	consulsd "github.com/go-kit/kit/sd/consul"
+	"github.com/go-kit/kit/sd/lb"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/log"
 	"github.com/sq325/kitComplement/pkg/proxy"
+)
+
+var (
+	retryMax     = 3
+	retryTimeout = 1 * time.Second
 )
 
 // factor: url -> endpoint
@@ -23,4 +32,14 @@ func FactoryFor(enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc) s
 		}
 		return proxyClient.Endpoint(), nil, nil
 	}
+}
+
+func NewEp(consulClient consulsd.Client, logger log.Logger, svcName string, dec kithttp.DecodeResponseFunc) endpoint.Endpoint {
+	enc := proxy.EncodeRequest
+	factory := FactoryFor(enc, dec)
+	instancer := consulsd.NewInstancer(consulClient, logger, svcName, nil, true)
+	endpointer := sd.NewEndpointer(instancer, factory, logger)
+	balancer := lb.NewRoundRobin(endpointer)
+	retry := lb.Retry(retryMax, retryTimeout, balancer)
+	return retry
 }
