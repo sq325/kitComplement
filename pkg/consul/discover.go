@@ -20,10 +20,12 @@ var (
 )
 
 // factor: url -> endpoint
-func FactoryFor(enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc) sd.Factory {
+// instance: ip:port
+// path: /search
+func FactoryFor(enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc, path string) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		if !strings.HasPrefix(instance, "http") {
-			instance = "http://" + instance
+			instance = "http://" + instance + path
 		}
 
 		proxyClient, err := proxy.NewClient(instance, enc, dec)
@@ -34,9 +36,9 @@ func FactoryFor(enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc) s
 	}
 }
 
-func NewEp(consulClient consulsd.Client, logger log.Logger, svcName string, dec kithttp.DecodeResponseFunc) endpoint.Endpoint {
+func NewEp(consulClient consulsd.Client, logger log.Logger, svcName string, dec kithttp.DecodeResponseFunc, path string) endpoint.Endpoint {
 	enc := proxy.EncodeRequest
-	factory := FactoryFor(enc, dec)
+	factory := FactoryFor(enc, dec, path)
 	instancer := consulsd.NewInstancer(consulClient, logger, svcName, nil, true)
 	endpointer := sd.NewEndpointer(instancer, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)
