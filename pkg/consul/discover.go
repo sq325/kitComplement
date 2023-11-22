@@ -2,6 +2,7 @@ package consul
 
 import (
 	"io"
+	btlog "log"
 	"strings"
 	"time"
 
@@ -26,8 +27,10 @@ func FactoryFor(enc kithttp.EncodeRequestFunc, dec kithttp.DecodeResponseFunc, p
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		if !strings.HasPrefix(instance, "http") {
 			instance = "http://" + instance + path
+		} else {
+			instance = instance + path
 		}
-
+		btlog.Println("instance: ", instance)
 		proxyClient, err := proxy.NewClient(instance, enc, dec)
 		if err != nil {
 			return nil, nil, err
