@@ -1,12 +1,21 @@
 package log
 
 import (
+	"os"
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+func DefaultZapLogger() *zap.SugaredLogger {
+	encoder := getEncoder("console")
+	writer := os.Stdout
+	writeSyncer := zapcore.AddSync(writer)
+	core := zapcore.NewCore(encoder, writeSyncer, zap.DebugLevel)
+	return zap.New(core, zap.AddCaller()).Sugar()
+}
 
 // 初始化日志实例
 // svcName: 服务名，自动生成服务名.log文件
