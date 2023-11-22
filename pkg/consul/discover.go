@@ -17,7 +17,7 @@ import (
 
 var (
 	retryMax     = 3
-	retryTimeout = 1 * time.Second
+	retryTimeout = 10 * time.Second
 )
 
 // factor: url -> endpoint
