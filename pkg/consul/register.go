@@ -32,6 +32,7 @@ type Service struct {
 	Name  string
 	IP    string // svc ip, default hostAdmIp
 	Port  int    // svc port
+	Tags  []string
 	Check struct {
 		Path     string // default /health
 		Interval string // "60s"
@@ -59,7 +60,7 @@ func (rg *registrar) Register(svc *Service) {
 		Name:    svc.Name,
 		Address: svc.IP,
 		Port:    svc.Port,
-		Tags:    []string{svc.Name},
+		Tags:    append(svc.Tags, svc.Name),
 		Check:   &check,
 	}
 	sdRegistrar := consulsd.NewRegistrar(rg.client, &asr, rg.logger)
