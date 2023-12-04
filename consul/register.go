@@ -7,7 +7,7 @@ import (
 	consulsd "github.com/go-kit/kit/sd/consul"
 	"github.com/go-kit/log"
 	"github.com/hashicorp/consul/api"
-	"github.com/sq325/kitComplement/pkg/tool"
+	"github.com/sq325/kitComplement/tool"
 )
 
 type Registrar interface {

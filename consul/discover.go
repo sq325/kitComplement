@@ -12,7 +12,7 @@ import (
 	"github.com/go-kit/kit/sd/lb"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
-	"github.com/sq325/kitComplement/pkg/proxy"
+	"github.com/sq325/kitComplement/proxy"
 )
 
 var (
