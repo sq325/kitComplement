@@ -44,6 +44,7 @@ func NewRegistrar(consulClient consulsd.Client, logger log.Logger) Registrar {
 
 type Service struct {
 	Name  string
+	ID    string
 	IP    string // svc ip, default hostAdmIp
 	Port  int    // svc port
 	Tags  []string
@@ -72,6 +73,7 @@ func (rg *registrar) Register(svc *Service) {
 	}
 	asr := api.AgentServiceRegistration{
 		Name:    svc.Name,
+		ID:      svc.ID,
 		Address: svc.IP,
 		Port:    svc.Port,
 		Tags:    append(svc.Tags, svc.Name),
