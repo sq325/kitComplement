@@ -104,7 +104,7 @@ func NewConsulClient(consulIP string, consulPort int) consulsd.Client {
 func NewLogger() (logger log.Logger) {
 
 	logger = log.NewLogfmtLogger(os.Stderr)
-	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+	logger = log.With(logger, "ts", log.DefaultTimestamp)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 
 	return
