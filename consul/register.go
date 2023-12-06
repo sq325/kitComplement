@@ -85,7 +85,7 @@ func (rg *registrar) Register(svc *Service) {
 
 func (rg *registrar) Deregister(svc *Service) {
 	asr := api.AgentServiceRegistration{
-		ID: svc.Name,
+		ID: svc.ID,
 	}
 	sdRegistrar := consulsd.NewRegistrar(rg.client, &asr, rg.logger)
 	sdRegistrar.Deregister()
