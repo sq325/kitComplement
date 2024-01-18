@@ -1,11 +1,11 @@
 // Copyright 2023 Sun Quan
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/metrics"
 
 	kitendpoint "github.com/go-kit/kit/endpoint"
@@ -35,8 +34,8 @@ type Metrics struct {
 	ReqL    metrics.Histogram
 }
 
-func InstrumentingMiddleware(m Metrics) endpoint.Middleware {
-	return func(next endpoint.Endpoint) endpoint.Endpoint {
+func InstrumentingMiddleware(m Metrics) kitendpoint.Middleware {
+	return func(next kitendpoint.Endpoint) kitendpoint.Endpoint {
 		return func(ctx context.Context, request any) (resp any, err error) {
 			method, ok := ctx.Value("method").(string)
 			if !ok {
@@ -64,17 +63,17 @@ func InstrumentingMiddleware(m Metrics) endpoint.Middleware {
 	}
 }
 
-func NewMetrics() Metrics {
+func NewMetrics(svcName string) Metrics {
 	requestCounter := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Name: "fileTransfer_request_count",
+		Name: svcName + "_request_count",
 		Help: "Number of requests received.",
 	}, []string{"uri", "method"})
 	requestErrCounter := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Name: "fileTransfer_request_error_count",
+		Name: svcName + "_request_error_count",
 		Help: "Number of error requests received.",
 	}, []string{"uri", "method"})
 	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Name:       "fileTransfer_request_latency_microseconds",
+		Name:       svcName + "_request_latency_microseconds",
 		Help:       "Total duration of requests in microseconds.",
 		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 	}, []string{"uri", "method"})
