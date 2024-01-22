@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
+	github.com/google/uuid v1.5.0
 	github.com/hashicorp/consul/api v1.14.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/prometheus/client_golang v1.17.0

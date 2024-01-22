@@ -20,6 +20,7 @@ import (
 
 	consulsd "github.com/go-kit/kit/sd/consul"
 	"github.com/go-kit/log"
+	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
 	"github.com/sq325/kitComplement/tool"
 )
@@ -44,7 +45,7 @@ func NewRegistrar(consulClient consulsd.Client, logger log.Logger) Registrar {
 
 type Service struct {
 	Name  string
-	ID    string
+	ID    string // default is svcName_UUID
 	IP    string // svc ip, default hostAdmIp
 	Port  int    // svc port
 	Tags  []string
@@ -61,6 +62,10 @@ func (rg *registrar) Register(svc *Service) {
 	}
 	if svc.IP == "" {
 		svc.IP, _ = tool.HostAdmIp(nil)
+	}
+	if svc.ID == "" {
+		uuid := uuid.NewString()
+		svc.ID = svc.Name + "_" + uuid
 	}
 
 	checkUrl := "http://" + svc.IP + ":" + strconv.Itoa(svc.Port) + svc.Check.Path
