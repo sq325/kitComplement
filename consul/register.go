@@ -16,6 +16,7 @@ package consul
 
 import (
 	"os"
+	"slices"
 	"strconv"
 
 	consulsd "github.com/go-kit/kit/sd/consul"
@@ -56,17 +57,26 @@ type Service struct {
 	}
 }
 
-func (rg *registrar) Register(svc *Service) {
-	if svc.Check.Path == "" {
-		svc.Check.Path = "/health"
-	}
-	if svc.IP == "" {
-		svc.IP, _ = tool.HostAdmIp(nil)
-	}
+func NewService(svc *Service) *Service {
 	if svc.ID == "" {
 		uuid := uuid.NewString()
 		svc.ID = svc.Name + "_" + uuid
 	}
+	if svc.IP == "" {
+		svc.IP, _ = tool.HostAdmIp(nil)
+	}
+	if svc.Check.Path == "" {
+		svc.Check.Path = "/health"
+	}
+	if !slices.ContainsFunc(svc.Tags, func(tag string) bool {
+		return tag == svc.Name
+	}) {
+		svc.Tags = append(svc.Tags, svc.Name)
+	}
+	return svc
+}
+
+func (rg *registrar) Register(svc *Service) {
 
 	checkUrl := "http://" + svc.IP + ":" + strconv.Itoa(svc.Port) + svc.Check.Path
 
@@ -81,7 +91,6 @@ func (rg *registrar) Register(svc *Service) {
 		ID:      svc.ID,
 		Address: svc.IP,
 		Port:    svc.Port,
-		Tags:    append(svc.Tags, svc.Name),
 		Check:   &check,
 	}
 	sdRegistrar := consulsd.NewRegistrar(rg.client, &asr, rg.logger)
